@@ -1,0 +1,243 @@
+<div class="page-content">
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Dashboard</h1>
+      <p class="page-subtitle">Market intelligence overview — updated every 5 minutes</p>
+    </div>
+    <div class="page-header-actions">
+      <button class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-download me-1"></i>Export
+      </button>
+      <button class="btn btn-cyan btn-sm">
+        <i class="bi bi-arrow-clockwise me-1"></i>Refresh All
+      </button>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="row g-4 mb-4">
+    <div class="col-sm-6 col-xl-3">
+      <div class="stat-card stat-card-cyan">
+        <div class="stat-card-top">
+          <div class="stat-icon"><i class="bi bi-boxes"></i></div>
+          <span class="stat-trend trend-up"><i class="bi bi-arrow-up"></i>+4</span>
+        </div>
+        <div class="stat-value">{{stats.totalProducts}}</div>
+        <div class="stat-label">Products Tracked</div>
+        <div class="stat-bar"><div class="stat-bar-fill" style="width:75%"></div></div>
+      </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+      <div class="stat-card stat-card-green">
+        <div class="stat-card-top">
+          <div class="stat-icon"><i class="bi bi-percent"></i></div>
+          <span class="stat-trend trend-up"><i class="bi bi-arrow-up"></i>+1.2%</span>
+        </div>
+        <div class="stat-value">{{stats.avgMargin}}%</div>
+        <div class="stat-label">Average Margin</div>
+        <div class="stat-bar"><div class="stat-bar-fill" style="width:{{stats.avgMargin}}%"></div></div>
+      </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+      <div class="stat-card stat-card-purple">
+        <div class="stat-card-top">
+          <div class="stat-icon"><i class="bi bi-graph-up"></i></div>
+          <span class="stat-trend trend-up"><i class="bi bi-arrow-up"></i>+12.4%</span>
+        </div>
+        <div class="stat-value">$847K</div>
+        <div class="stat-label">Est. Weekly Revenue</div>
+        <div class="stat-bar"><div class="stat-bar-fill" style="width:68%"></div></div>
+      </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+      <div class="stat-card stat-card-orange">
+        <div class="stat-card-top">
+          <div class="stat-icon"><i class="bi bi-lightning-charge-fill"></i></div>
+          <span class="stat-trend trend-up"><i class="bi bi-arrow-up"></i>3 new</span>
+        </div>
+        <div class="stat-value">{{stats.newOpportunities}}</div>
+        <div class="stat-label">New Opportunities</div>
+        <div class="stat-bar"><div class="stat-bar-fill" style="width:45%"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Row -->
+  <div class="row g-4 mb-4">
+    <div class="col-lg-8">
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <div>
+            <div class="chart-card-title">Revenue & Units Trend</div>
+            <div class="chart-card-sub">Last 7 days across all tracked products</div>
+          </div>
+          <div class="chart-tabs">
+            <button class="chart-tab active" data-chart="revenue">Revenue</button>
+            <button class="chart-tab" data-chart="units">Units</button>
+          </div>
+        </div>
+        <div class="chart-body">
+          <canvas id="salesChart" height="260"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <div>
+            <div class="chart-card-title">Margin Distribution</div>
+            <div class="chart-card-sub">Products by margin band</div>
+          </div>
+        </div>
+        <div class="chart-body d-flex justify-content-center align-items-center">
+          <canvas id="marginChart" height="220"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tables Row -->
+  <div class="row g-4 mb-4">
+    <div class="col-lg-6">
+      <div class="data-card">
+        <div class="data-card-header">
+          <div class="data-card-title">
+            <i class="bi bi-fire text-danger me-2"></i>Top by Sales Volume
+          </div>
+          <a href="/products?sort=sales" class="data-card-link">View all <i class="bi bi-arrow-right"></i></a>
+        </div>
+        <div class="data-table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Product</th>
+                <th>Monthly</th>
+                <th>Margin</th>
+                <th>Trend</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#each topProducts}}
+              <tr>
+                <td class="rank-cell">{{@index_plus_1}}
+                  {{!-- workaround --}}
+                </td>
+                <td>
+                  <div class="product-cell">
+                    <img src="{{image}}" alt="{{name}}" class="product-thumb" />
+                    <div>
+                      <div class="product-name">{{name}}</div>
+                      <div class="product-cat">{{category}}</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="mono">{{formatNum monthlySales}}</td>
+                <td><span class="margin-badge {{marginBadge margin}}">{{percentage margin}}</span></td>
+                <td class="{{trendClass trend}}">{{trendIcon trend}}</td>
+              </tr>
+              {{/each}}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="data-card">
+        <div class="data-card-header">
+          <div class="data-card-title">
+            <i class="bi bi-stars text-warning me-2"></i>Best Margins
+          </div>
+          <a href="/products?sort=margin" class="data-card-link">View all <i class="bi bi-arrow-right"></i></a>
+        </div>
+        <div class="data-table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Sell Avg</th>
+                <th>Buy Price</th>
+                <th>Margin</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#each bestMargins}}
+              <tr>
+                <td>
+                  <div class="product-cell">
+                    <img src="{{image}}" alt="{{name}}" class="product-thumb" />
+                    <div>
+                      <div class="product-name">{{name}}</div>
+                      <div class="product-cat">{{sku}}</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="mono">{{formatCurrency avgSellPrice}}</td>
+                <td class="mono text-cyan">{{formatCurrency bestSupplierPrice}}</td>
+                <td><span class="margin-badge {{marginBadge margin}}">{{percentage margin}}</span></td>
+              </tr>
+              {{/each}}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sources Status -->
+  <div class="row g-4">
+    <div class="col-lg-6">
+      <div class="data-card">
+        <div class="data-card-header">
+          <div class="data-card-title"><i class="bi bi-shop me-2 text-cyan"></i>Market Sources</div>
+          <a href="/sources" class="data-card-link">Manage <i class="bi bi-arrow-right"></i></a>
+        </div>
+        <div class="sources-list">
+          {{#each marketSources}}
+          <div class="source-row">
+            <div class="source-info">
+              <i class="bi {{icon}} source-icon" style="color:{{color}}"></i>
+              <div>
+                <div class="source-name">{{name}}</div>
+                <div class="source-meta">Last sync: {{lastSync}}</div>
+              </div>
+            </div>
+            <div class="source-right">
+              <span class="source-count">{{productsTracked}} products</span>
+              <span class="status-dot status-active"></span>
+            </div>
+          </div>
+          {{/each}}
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="data-card">
+        <div class="data-card-header">
+          <div class="data-card-title"><i class="bi bi-building me-2 text-purple"></i>Supplier Sources</div>
+          <a href="/sources" class="data-card-link">Manage <i class="bi bi-arrow-right"></i></a>
+        </div>
+        <div class="sources-list">
+          {{#each supplierSources}}
+          <div class="source-row">
+            <div class="source-info">
+              <i class="bi {{icon}} source-icon" style="color:{{color}}"></i>
+              <div>
+                <div class="source-name">{{name}}</div>
+                <div class="source-meta">Last sync: {{lastSync}}</div>
+              </div>
+            </div>
+            <div class="source-right">
+              <span class="source-count">{{productsMatched}} matched</span>
+              <span class="status-dot {{#if (eq status 'syncing')}}status-syncing{{else}}status-active{{/if}}"></span>
+            </div>
+          </div>
+          {{/each}}
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,182 @@
+<div class="page-content">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <div class="b2b-label"><i class="bi bi-building-fill me-2"></i>B2B Commercial Intelligence</div>
+      <h1 class="page-title">Commercial Products</h1>
+      <p class="page-subtitle">{{totalCount}} products tracked · Manufacturing, Electronics, Industrial, Raw Materials & more</p>
+    </div>
+    <div class="page-header-actions">
+      <button class="btn btn-outline-secondary btn-sm"><i class="bi bi-download me-1"></i>Export</button>
+      <button class="btn btn-b2b btn-sm"><i class="bi bi-plus me-1"></i>Add Product</button>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-xl-3">
+      <div class="stat-card stat-card-b2b-blue">
+        <div class="stat-card-top">
+          <div class="stat-icon" style="background:rgba(0,183,255,0.12);color:#00B7FF"><i class="bi bi-boxes"></i></div>
+          <span class="stat-trend trend-up"><i class="bi bi-arrow-up"></i>+2</span>
+        </div>
+        <div class="stat-value">{{b2bStats.totalProducts}}</div>
+        <div class="stat-label">Products Tracked</div>
+        <div class="stat-bar"><div class="stat-bar-fill" style="width:80%;background:#00B7FF"></div></div>
+      </div>
+    </div>
+    <div class="col-6 col-xl-3">
+      <div class="stat-card stat-card-b2b-gold">
+        <div class="stat-card-top">
+          <div class="stat-icon" style="background:rgba(255,193,7,0.12);color:#FFC107"><i class="bi bi-percent"></i></div>
+          <span class="stat-trend trend-up"><i class="bi bi-arrow-up"></i>Avg</span>
+        </div>
+        <div class="stat-value">{{b2bStats.avgMargin}}%</div>
+        <div class="stat-label">Average Margin</div>
+        <div class="stat-bar"><div class="stat-bar-fill" style="width:{{b2bStats.avgMargin}}%;background:#FFC107"></div></div>
+      </div>
+    </div>
+    <div class="col-6 col-xl-3">
+      <div class="stat-card stat-card-b2b-green">
+        <div class="stat-card-top">
+          <div class="stat-icon" style="background:rgba(0,230,118,0.12);color:var(--green)"><i class="bi bi-graph-up"></i></div>
+          <span class="stat-trend trend-up"><i class="bi bi-arrow-up"></i>Annual</span>
+        </div>
+        <div class="stat-value">{{formatNum b2bStats.totalAnnualDemand}}</div>
+        <div class="stat-label">Total Annual Demand (units)</div>
+        <div class="stat-bar"><div class="stat-bar-fill" style="width:72%;background:var(--green)"></div></div>
+      </div>
+    </div>
+    <div class="col-6 col-xl-3">
+      <div class="stat-card stat-card-b2b-purple">
+        <div class="stat-card-top">
+          <div class="stat-icon" style="background:rgba(123,47,190,0.12);color:var(--purple)"><i class="bi bi-patch-check-fill"></i></div>
+          <span class="stat-trend trend-up">100%</span>
+        </div>
+        <div class="stat-value">{{b2bStats.certifiedCount}}</div>
+        <div class="stat-label">Certified Products</div>
+        <div class="stat-bar"><div class="stat-bar-fill" style="width:100%;background:var(--purple)"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sector Cards -->
+  <div class="sector-grid mb-4">
+    {{#each sectors}}
+    <a href="/b2b?industry={{id}}" class="sector-card {{#if (eq id ../currentIndustry)}}sector-active{{/if}}">
+      <i class="bi {{icon}} sector-card-icon" style="color:{{color}}"></i>
+      <div class="sector-card-name">{{id}}</div>
+      <div class="sector-card-count">{{count}} products</div>
+    </a>
+    {{/each}}
+    <a href="/b2b" class="sector-card {{#unless currentIndustry}}sector-active{{/unless}}">
+      <i class="bi bi-grid-3x3-gap sector-card-icon" style="color:#8FA8C8"></i>
+      <div class="sector-card-name">All Sectors</div>
+      <div class="sector-card-count">{{b2bStats.totalProducts}} products</div>
+    </a>
+  </div>
+
+  <!-- Filters -->
+  <div class="filter-bar mb-4">
+    <form method="GET" action="/b2b" class="d-flex flex-wrap gap-2 align-items-center">
+      <div class="filter-search">
+        <i class="bi bi-search filter-search-icon"></i>
+        <input type="text" name="search" class="form-control form-select-sm filter-search-input" placeholder="Search products, SKUs, categories…" value="{{searchQuery}}" />
+      </div>
+      <input type="hidden" name="industry" value="{{currentIndustry}}" />
+      <select name="sort" class="form-select form-select-sm filter-select">
+        <option value="demand"   {{#if (eq currentSort 'demand')}}selected{{/if}}>Sort: Annual Demand</option>
+        <option value="margin"   {{#if (eq currentSort 'margin')}}selected{{/if}}>Sort: Margin</option>
+        <option value="price"    {{#if (eq currentSort 'price')}}selected{{/if}}>Sort: Market Price</option>
+        <option value="leadtime" {{#if (eq currentSort 'leadtime')}}selected{{/if}}>Sort: Lead Time</option>
+        <option value="name"     {{#if (eq currentSort 'name')}}selected{{/if}}>Sort: Name</option>
+      </select>
+      <button type="submit" class="btn btn-outline-secondary btn-sm">Apply</button>
+      {{#if searchQuery}}<a href="/b2b{{#if currentIndustry}}?industry={{currentIndustry}}{{/if}}" class="btn btn-outline-danger btn-sm"><i class="bi bi-x"></i></a>{{/if}}
+    </form>
+  </div>
+
+  <!-- Products Table -->
+  <div class="data-card p-0">
+    <div class="table-responsive">
+      <table class="data-table b2b-table">
+        <thead>
+          <tr>
+            <th style="width:36px">#</th>
+            <th>Product</th>
+            <th>Industry</th>
+            <th class="text-end">Market Price</th>
+            <th class="text-end">Min Buy</th>
+            <th class="text-end">Best Bulk</th>
+            <th class="text-center">Min MOQ</th>
+            <th class="text-center">Lead Time</th>
+            <th class="text-center">Margin</th>
+            <th class="text-center">Certifications</th>
+            <th class="text-center">Trend</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each products}}
+          <tr class="product-row">
+            <td class="rank-num">{{rankNum @index}}</td>
+            <td style="min-width:240px">
+              <div class="product-cell">
+                <img src="{{image}}" alt="{{name}}" class="product-thumb-md" />
+                <div>
+                  <div class="product-name-main">{{name}}</div>
+                  <div class="product-sku">{{sku}}</div>
+                  <div class="b2b-subcategory">{{subcategory}}</div>
+                  <div class="product-tags mt-1">
+                    {{#each tags}}
+                    <span class="ptag ptag-{{this}}">{{this}}</span>
+                    {{/each}}
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div class="industry-badge">
+                {{#each ../sectors}}{{#if (eq id ../industry)}}
+                  <i class="bi {{icon}} me-1" style="color:{{color}}"></i>
+                {{/if}}{{/each}}
+                <span class="small">{{industry}}</span>
+              </div>
+            </td>
+            <td class="text-end mono fw-semibold">{{formatCurrency marketPrice}}<div class="small text-muted">/ {{#if unit}}{{unit}}{{else}}unit{{/if}}</div></td>
+            <td class="text-end mono">{{formatCurrency pricingTiers.[0].unitPrice}}<div class="small text-muted">MOQ {{pricingTiers.[0].moq}}</div></td>
+            <td class="text-end mono fw-bold text-cyan">{{formatCurrency bestUnitPrice}}<div class="small text-muted">MOQ {{bestMoq}}</div></td>
+            <td class="text-center"><div class="moq-badge">×{{bestMoq}}</div></td>
+            <td class="text-center">
+              <div class="leadtime-badge {{#if (gt 8 leadTimeDays)}}leadtime-fast{{else if (gt 15 leadTimeDays)}}leadtime-med{{else}}leadtime-slow{{/if}}">
+                <i class="bi bi-clock me-1"></i>{{leadTimeDays}}d
+              </div>
+            </td>
+            <td class="text-center"><span class="margin-pill {{marginBadge margin}}">{{percentage margin}}</span></td>
+            <td class="text-center">
+              <div class="cert-stack">
+                {{#each certifications}}
+                <span class="cert-tag">{{this}}</span>
+                {{/each}}
+              </div>
+            </td>
+            <td class="text-center"><span class="trend-indicator {{trendClass trend}}">{{trendIcon trend}}</span></td>
+            <td><a href="/b2b/{{id}}" class="btn btn-outline-secondary btn-xs"><i class="bi bi-eye"></i></a></td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Legend -->
+  <div class="table-legend mt-3">
+    <div class="legend-item"><span class="leadtime-badge leadtime-fast">≤7d</span> Fast</div>
+    <div class="legend-item"><span class="leadtime-badge leadtime-med">8–14d</span> Standard</div>
+    <div class="legend-item"><span class="leadtime-badge leadtime-slow">15d+</span> Long lead</div>
+    <div class="legend-sep"></div>
+    <div class="text-muted small">All margins are gross estimates. Verify pricing tiers, shipping, duties and compliance costs with suppliers before ordering.</div>
+  </div>
+
+</div>

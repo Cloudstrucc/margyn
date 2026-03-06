@@ -1,0 +1,179 @@
+<div class="page-content">
+
+  <!-- Breadcrumb back -->
+  <div class="mb-3">
+    <a href="/b2b" class="back-link"><i class="bi bi-arrow-left me-1"></i>Back to B2B Commercial</a>
+  </div>
+
+  <div class="row g-4">
+
+    <!-- LEFT — Identity & Pricing -->
+    <div class="col-xl-5">
+
+      <!-- Product Card -->
+      <div class="data-card mb-4">
+        <div class="b2b-detail-header">
+          <img src="{{product.image}}" alt="{{product.name}}" class="b2b-detail-img" />
+          <div>
+            <div class="b2b-label mb-1"><i class="bi bi-building-fill me-1"></i>{{product.industry}}</div>
+            <h2 class="b2b-detail-title">{{product.name}}</h2>
+            <div class="b2b-detail-sub">{{product.subcategory}}</div>
+            <div class="product-tags mt-2">
+              {{#each product.tags}}<span class="ptag ptag-{{this}}">{{this}}</span>{{/each}}
+            </div>
+            <div class="mono small text-muted mt-1">SKU: {{product.sku}}</div>
+          </div>
+        </div>
+
+        <p class="text-secondary small mt-3 mb-3" style="line-height:1.6">{{product.description}}</p>
+
+        <div class="b2b-meta-row">
+          <div class="b2b-meta-item">
+            <div class="b2b-meta-label">Origin</div>
+            <div class="b2b-meta-val">{{product.originCountry}}</div>
+          </div>
+          <div class="b2b-meta-item">
+            <div class="b2b-meta-label">Lead Time</div>
+            <div class="b2b-meta-val mono">{{product.leadTimeDays}} days</div>
+          </div>
+          <div class="b2b-meta-item">
+            <div class="b2b-meta-label">Annual Demand</div>
+            <div class="b2b-meta-val mono">{{formatNum product.annualDemandUnits}}</div>
+          </div>
+          <div class="b2b-meta-item">
+            <div class="b2b-meta-label">Market Price</div>
+            <div class="b2b-meta-val mono text-cyan">{{formatCurrency product.marketPrice}}</div>
+          </div>
+        </div>
+
+        <!-- Certifications -->
+        <div class="mt-3">
+          <div class="b2b-section-label">Certifications & Compliance</div>
+          <div class="cert-stack mt-2">
+            {{#each product.certifications}}<span class="cert-tag cert-tag-lg">{{this}}</span>{{/each}}
+          </div>
+        </div>
+
+        <!-- Payment Terms -->
+        <div class="mt-3">
+          <div class="b2b-section-label">Accepted Payment Terms</div>
+          <div class="d-flex gap-2 flex-wrap mt-2">
+            {{#each product.paymentTerms}}<span class="payment-tag">{{this}}</span>{{/each}}
+          </div>
+        </div>
+      </div>
+
+      <!-- Suppliers -->
+      <div class="data-card">
+        <div class="data-card-header">
+          <div class="data-card-title"><i class="bi bi-buildings text-purple me-2"></i>Verified Suppliers</div>
+        </div>
+        {{#each product.suppliers}}
+        <div class="supplier-row">
+          <div class="supplier-avatar">{{country}}</div>
+          <div class="supplier-info">
+            <div class="supplier-name">{{name}}</div>
+            <div class="supplier-country text-muted small">{{country}}{{#if verified}} · <span class="text-success"><i class="bi bi-patch-check-fill"></i> Verified</span>{{/if}}</div>
+          </div>
+          <div class="supplier-rating ms-auto">
+            <span class="text-warning">★</span>
+            <span class="mono fw-bold">{{rating}}</span>
+          </div>
+        </div>
+        {{/each}}
+      </div>
+
+    </div>
+
+    <!-- RIGHT — Pricing Tiers & Margin -->
+    <div class="col-xl-7">
+
+      <!-- Pricing Tiers -->
+      <div class="data-card mb-4">
+        <div class="data-card-header">
+          <div class="data-card-title"><i class="bi bi-layers text-cyan me-2"></i>Volume Pricing Tiers</div>
+          <span class="small text-muted">Lower price per unit as order quantity increases</span>
+        </div>
+
+        <div class="pricing-tiers-grid">
+          {{#each product.pricingTiers}}
+          <div class="pricing-tier {{#if (eq label 'Bulk')}}tier-highlight{{/if}} {{#if (eq label 'Volume')}}tier-highlight{{/if}}">
+            <div class="tier-label">{{label}}</div>
+            <div class="tier-moq">MOQ ×{{moq}}</div>
+            <div class="tier-price">{{formatCurrency unitPrice}}</div>
+            <div class="tier-sub">per {{#if ../product.unit}}{{../product.unit}}{{else}}unit{{/if}}</div>
+            <div class="tier-bar">
+              <div class="tier-bar-fill" style="height:{{percentage unitPrice}}"></div>
+            </div>
+          </div>
+          {{/each}}
+        </div>
+
+        <!-- Best deal callout -->
+        <div class="best-deal-row">
+          <div class="best-deal-label"><i class="bi bi-star-fill text-warning me-2"></i>Best bulk price</div>
+          <div class="best-deal-price">{{formatCurrency product.bestUnitPrice}} / {{#if product.unit}}{{product.unit}}{{else}}unit{{/if}}</div>
+          <div class="best-deal-moq">at MOQ ×{{formatNum product.bestMoq}}</div>
+        </div>
+      </div>
+
+      <!-- Margin Breakdown -->
+      <div class="data-card mb-4">
+        <div class="data-card-header">
+          <div class="data-card-title"><i class="bi bi-calculator text-green me-2"></i>Margin Analysis</div>
+        </div>
+        <div class="margin-breakdown">
+          <div class="mb-row">
+            <span class="mb-label">Market / Sell Price</span>
+            <span class="mb-val mono">{{formatCurrency product.marketPrice}}</span>
+          </div>
+          <div class="mb-row mb-row-sub">
+            <span class="mb-label">Best Supplier Cost</span>
+            <span class="mb-val mono text-danger">− {{formatCurrency product.bestUnitPrice}}</span>
+          </div>
+          <div class="mb-divider"></div>
+          <div class="mb-row mb-row-total">
+            <span class="mb-label fw-bold">Gross Profit / Unit</span>
+            <span class="mb-val mono fw-bold text-success">{{formatCurrency product.marginAmount}}</span>
+          </div>
+          <div class="mb-row mb-row-total">
+            <span class="mb-label fw-bold">Gross Margin</span>
+            <span class="mb-val mono fw-bold {{marginClass product.margin}}">{{percentage product.margin}}</span>
+          </div>
+        </div>
+
+        <!-- Margin bar -->
+        <div class="margin-visual mt-3">
+          <div class="margin-visual-bar">
+            <div class="margin-visual-fill" style="width:{{percentage product.margin}};background:{{#if (gt product.margin 50)}}var(--green){{else if (gt product.margin 30)}}var(--orange){{else}}var(--red){{/if}}"></div>
+          </div>
+          <div class="d-flex justify-content-between small text-muted mt-1">
+            <span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span>
+          </div>
+        </div>
+        <div class="small text-muted mt-2">
+          <i class="bi bi-info-circle me-1"></i>Estimates only. Deduct shipping, duties, warehousing and compliance costs for net margin.
+        </div>
+      </div>
+
+      <!-- Rating + Demand -->
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div class="data-card text-center p-4">
+            <div class="big-rating">★ {{product.rating}}</div>
+            <div class="big-rating-label">Supplier Rating</div>
+            <div class="text-muted small mt-1">{{formatNum product.reviewCount}} reviews</div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="data-card text-center p-4">
+            <div class="big-demand">{{formatNum product.annualDemandUnits}}</div>
+            <div class="big-demand-label">Annual Demand (units)</div>
+            <div class="trend-indicator {{trendClass product.trend}} mt-1">{{trendIcon product.trend}} {{product.trend}} demand</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

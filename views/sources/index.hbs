@@ -1,0 +1,812 @@
+<div class="page-content sources-page">
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Data Sources</h1>
+      <p class="page-subtitle">Configure scrapers &amp; API connectors for market and supplier intelligence</p>
+    </div>
+    <div class="page-header-actions">
+      <button class="btn btn-outline-secondary btn-sm" id="runAllBtn">
+        <i class="bi bi-play-circle me-1"></i>Run All
+      </button>
+      <button class="btn btn-cyan btn-sm" data-bs-toggle="modal" data-bs-target="#addSourceModal">
+        <i class="bi bi-plus-lg me-1"></i>Add Source
+      </button>
+    </div>
+  </div>
+
+  <!-- Stats Strip -->
+  <div class="source-stats-strip mb-4">
+    <div class="sstat">
+      <div class="sstat-val">{{stats.total}}</div>
+      <div class="sstat-lab">Total Sources</div>
+    </div>
+    <div class="sstat-sep"></div>
+    <div class="sstat">
+      <div class="sstat-val text-success">{{stats.active}}</div>
+      <div class="sstat-lab">Active</div>
+    </div>
+    <div class="sstat-sep"></div>
+    <div class="sstat">
+      <div class="sstat-val text-warning">{{stats.partial}}</div>
+      <div class="sstat-lab">Partial Runs</div>
+    </div>
+    <div class="sstat-sep"></div>
+    <div class="sstat">
+      <div class="sstat-val text-cyan">{{stats.successRate}}%</div>
+      <div class="sstat-lab">Success Rate</div>
+    </div>
+    <div class="sstat-sep"></div>
+    <div class="sstat">
+      <div class="sstat-val">{{stats.totalRuns}}</div>
+      <div class="sstat-lab">Total Runs</div>
+    </div>
+    <div class="sstat-spacer"></div>
+    <div class="source-type-legend">
+      <span class="type-dot type-scraper"></span>Scraper
+      <span class="type-dot type-rest ms-3"></span>REST
+      <span class="type-dot type-graphql ms-3"></span>GraphQL
+      <span class="type-dot type-soap ms-3"></span>SOAP
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- Market Sources -->
+    <div class="col-xl-6">
+      <div class="source-section-header">
+        <div class="source-section-title">
+          <i class="bi bi-shop-window text-cyan me-2"></i>Market Sources
+          <span class="section-count">{{marketSources.length}}</span>
+        </div>
+        <span class="section-hint">Tracks sell-side prices &amp; volumes</span>
+      </div>
+
+      {{#each marketSources}}
+      <div class="src-card mb-3" data-source-id="{{id}}" id="src-{{id}}">
+        <!-- Card Header -->
+        <div class="src-card-top">
+          <div class="src-icon-wrap" style="background:{{color}}18;border-color:{{color}}35">
+            <i class="bi {{icon}}" style="color:{{color}}"></i>
+          </div>
+          <div class="src-meta">
+            <div class="src-name">{{name}}</div>
+            <div class="src-badges">
+              <span class="src-type-badge src-type-{{type}}">{{type}}</span>
+              <span class="src-role-badge">market</span>
+            </div>
+          </div>
+          <div class="src-status-area ms-auto">
+            <span class="src-status-pill {{#if (eq status 'active')}}pill-active{{else if (eq status 'paused')}}pill-paused{{else if (eq status 'syncing')}}pill-syncing{{else}}pill-error{{/if}}">
+              <span class="pill-dot"></span>
+              {{status}}
+            </span>
+          </div>
+          <div class="src-actions">
+            <button class="src-btn src-btn-run" title="Run now" data-id="{{id}}" data-name="{{name}}">
+              <i class="bi bi-play-fill"></i>
+            </button>
+            <button class="src-btn src-btn-test" title="Test connection" data-id="{{id}}">
+              <i class="bi bi-plug"></i>
+            </button>
+            <button class="src-btn src-btn-toggle {{#if (eq status 'paused')}}is-paused{{/if}}" title="Pause / Resume" data-id="{{id}}">
+              <i class="bi {{#if (eq status 'paused')}}bi-play{{else}}bi-pause{{/if}}"></i>
+            </button>
+            <button class="src-btn src-btn-detail" title="View config" data-id="{{id}}">
+              <i class="bi bi-code-slash"></i>
+            </button>
+            <button class="src-btn src-btn-delete" title="Remove" data-id="{{id}}" data-name="{{name}}">
+              <i class="bi bi-trash3"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Progress bar (hidden until running) -->
+        <div class="src-progress-wrap d-none" id="prog-{{id}}">
+          <div class="src-progress-bar"><div class="src-progress-fill" id="pfill-{{id}}"></div></div>
+          <div class="src-progress-label" id="plabel-{{id}}">Starting…</div>
+        </div>
+
+        <!-- Stats row -->
+        <div class="src-stats-row">
+          <div class="src-stat">
+            <i class="bi bi-boxes"></i>
+            <span><strong>{{stats.productsFound}}</strong> products</span>
+          </div>
+          <div class="src-stat">
+            <i class="bi bi-check2-circle"></i>
+            <span><strong>{{stats.successRate}}%</strong> success</span>
+          </div>
+          <div class="src-stat">
+            <i class="bi bi-speedometer2"></i>
+            <span><strong>{{stats.avgResponseMs}}ms</strong> avg</span>
+          </div>
+          <div class="src-stat">
+            <i class="bi bi-repeat"></i>
+            <span><strong>{{runCount}}</strong> runs</span>
+          </div>
+          <div class="src-stat ms-auto">
+            <i class="bi bi-clock-history"></i>
+            <span id="lastrun-{{id}}">
+              {{#if lastRun}}
+                <span class="status-icon-{{lastRunStatus}}">
+                  {{#if (eq lastRunStatus 'success')}}<i class="bi bi-check-circle-fill text-success"></i>
+                  {{else if (eq lastRunStatus 'partial')}}<i class="bi bi-exclamation-circle-fill text-warning"></i>
+                  {{else}}<i class="bi bi-x-circle-fill text-danger"></i>{{/if}}
+                </span>
+                &nbsp;{{lastRunStatus}}
+              {{else}}
+                <span class="text-muted">Never run</span>
+              {{/if}}
+            </span>
+          </div>
+        </div>
+
+        <!-- Schedule chip -->
+        <div class="src-footer">
+          <span class="src-schedule-chip"><i class="bi bi-calendar3 me-1"></i>{{config.schedule}}</span>
+          {{#if (eq type 'scraper')}}<span class="src-url-chip" title="{{config.url}}"><i class="bi bi-link-45deg me-1"></i>{{config.url}}</span>{{/if}}
+          {{#if (eq type 'rest')}}<span class="src-url-chip"><i class="bi bi-cloud-arrow-up me-1"></i>{{config.baseUrl}}</span>{{/if}}
+          {{#if (eq type 'graphql')}}<span class="src-url-chip"><i class="bi bi-braces me-1"></i>{{config.endpoint}}</span>{{/if}}
+          {{#if (eq type 'soap')}}<span class="src-url-chip"><i class="bi bi-filetype-xml me-1"></i>{{config.wsdlUrl}}</span>{{/if}}
+        </div>
+      </div>
+      {{/each}}
+    </div>
+
+    <!-- Supplier Sources -->
+    <div class="col-xl-6">
+      <div class="source-section-header">
+        <div class="source-section-title">
+          <i class="bi bi-building text-purple me-2"></i>Supplier Sources
+          <span class="section-count section-count-purple">{{supplierSources.length}}</span>
+        </div>
+        <span class="section-hint">Tracks buy-side prices &amp; MOQs</span>
+      </div>
+
+      {{#each supplierSources}}
+      <div class="src-card mb-3" data-source-id="{{id}}" id="src-{{id}}">
+        <div class="src-card-top">
+          <div class="src-icon-wrap" style="background:{{color}}18;border-color:{{color}}35">
+            <i class="bi {{icon}}" style="color:{{color}}"></i>
+          </div>
+          <div class="src-meta">
+            <div class="src-name">{{name}}</div>
+            <div class="src-badges">
+              <span class="src-type-badge src-type-{{type}}">{{type}}</span>
+              <span class="src-role-badge src-role-supplier">supplier</span>
+            </div>
+          </div>
+          <div class="src-status-area ms-auto">
+            <span class="src-status-pill {{#if (eq status 'active')}}pill-active{{else if (eq status 'paused')}}pill-paused{{else if (eq status 'syncing')}}pill-syncing{{else}}pill-error{{/if}}">
+              <span class="pill-dot"></span>
+              {{status}}
+            </span>
+          </div>
+          <div class="src-actions">
+            <button class="src-btn src-btn-run" title="Run now" data-id="{{id}}" data-name="{{name}}">
+              <i class="bi bi-play-fill"></i>
+            </button>
+            <button class="src-btn src-btn-test" title="Test connection" data-id="{{id}}">
+              <i class="bi bi-plug"></i>
+            </button>
+            <button class="src-btn src-btn-toggle {{#if (eq status 'paused')}}is-paused{{/if}}" title="Pause / Resume" data-id="{{id}}">
+              <i class="bi {{#if (eq status 'paused')}}bi-play{{else}}bi-pause{{/if}}"></i>
+            </button>
+            <button class="src-btn src-btn-detail" title="View config" data-id="{{id}}">
+              <i class="bi bi-code-slash"></i>
+            </button>
+            <button class="src-btn src-btn-delete" title="Remove" data-id="{{id}}" data-name="{{name}}">
+              <i class="bi bi-trash3"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="src-progress-wrap d-none" id="prog-{{id}}">
+          <div class="src-progress-bar"><div class="src-progress-fill" id="pfill-{{id}}"></div></div>
+          <div class="src-progress-label" id="plabel-{{id}}">Starting…</div>
+        </div>
+
+        <div class="src-stats-row">
+          <div class="src-stat">
+            <i class="bi bi-boxes"></i>
+            <span><strong>{{stats.productsFound}}</strong> matched</span>
+          </div>
+          <div class="src-stat">
+            <i class="bi bi-check2-circle"></i>
+            <span><strong>{{stats.successRate}}%</strong> success</span>
+          </div>
+          <div class="src-stat">
+            <i class="bi bi-speedometer2"></i>
+            <span><strong>{{stats.avgResponseMs}}ms</strong> avg</span>
+          </div>
+          <div class="src-stat">
+            <i class="bi bi-repeat"></i>
+            <span><strong>{{runCount}}</strong> runs</span>
+          </div>
+          <div class="src-stat ms-auto">
+            <i class="bi bi-clock-history"></i>
+            <span id="lastrun-{{id}}">
+              {{#if lastRun}}
+                <span>
+                  {{#if (eq lastRunStatus 'success')}}<i class="bi bi-check-circle-fill text-success"></i>
+                  {{else if (eq lastRunStatus 'partial')}}<i class="bi bi-exclamation-circle-fill text-warning"></i>
+                  {{else}}<i class="bi bi-x-circle-fill text-danger"></i>{{/if}}
+                </span>
+                &nbsp;{{lastRunStatus}}
+              {{else}}
+                <span class="text-muted">Never run</span>
+              {{/if}}
+            </span>
+          </div>
+        </div>
+
+        <div class="src-footer">
+          <span class="src-schedule-chip"><i class="bi bi-calendar3 me-1"></i>{{config.schedule}}</span>
+          {{#if (eq type 'scraper')}}<span class="src-url-chip" title="{{config.url}}"><i class="bi bi-link-45deg me-1"></i>{{config.url}}</span>{{/if}}
+          {{#if (eq type 'rest')}}<span class="src-url-chip"><i class="bi bi-cloud-arrow-up me-1"></i>{{config.baseUrl}}</span>{{/if}}
+          {{#if (eq type 'graphql')}}<span class="src-url-chip"><i class="bi bi-braces me-1"></i>{{config.endpoint}}</span>{{/if}}
+          {{#if (eq type 'soap')}}<span class="src-url-chip"><i class="bi bi-filetype-xml me-1"></i>{{config.wsdlUrl}}</span>{{/if}}
+        </div>
+      </div>
+      {{/each}}
+    </div>
+  </div>
+
+  <!-- Job Activity Log -->
+  <div class="data-card mt-4">
+    <div class="data-card-header">
+      <div class="data-card-title">
+        <i class="bi bi-terminal me-2 text-cyan"></i>Job Activity Log
+        <span class="live-badge ms-2"><span class="live-dot"></span>Live</span>
+      </div>
+      <div class="d-flex gap-2">
+        <select class="form-select form-select-sm filter-select" style="width:160px" id="logFilter">
+          <option value="">All sources</option>
+          {{#each marketSources}}<option value="{{id}}">{{name}}</option>{{/each}}
+          {{#each supplierSources}}<option value="{{id}}">{{name}}</option>{{/each}}
+        </select>
+        <button class="btn btn-outline-secondary btn-sm" id="clearLogsBtn">Clear view</button>
+      </div>
+    </div>
+    <div class="job-log-wrap" id="jobLogWrap">
+      {{#each recentLogs}}
+      <div class="log-row log-row-{{status}}" data-source="{{sourceId}}">
+        <span class="log-status-icon">
+          {{#if (eq status 'success')}}<i class="bi bi-check-circle-fill text-success"></i>
+          {{else if (eq status 'partial')}}<i class="bi bi-exclamation-circle-fill text-warning"></i>
+          {{else if (eq status 'error')}}<i class="bi bi-x-circle-fill text-danger"></i>
+          {{else}}<i class="bi bi-arrow-repeat text-cyan"></i>{{/if}}
+        </span>
+        <span class="log-source">{{sourceId}}</span>
+        <span class="log-msg">
+          {{#if (eq status 'success')}}✓ {{productsFound}} products found
+          {{else if (eq status 'partial')}}⚠ {{productsFound}} found, {{errors}} errors
+          {{else if (eq status 'error')}}✗ Job failed
+          {{else}}Running…{{/if}}
+          {{#if simulated}} <span class="simulated-tag">simulated</span>{{/if}}
+        </span>
+        <span class="log-duration mono">{{durationMs}}ms</span>
+        <span class="log-time">{{startedAt}}</span>
+      </div>
+      {{/each}}
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     ADD SOURCE WIZARD MODAL
+     ═══════════════════════════════════════════════════ -->
+<div class="modal fade" id="addSourceModal" tabindex="-1" aria-labelledby="addSourceModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content wizard-modal">
+      <div class="modal-header wizard-header border-0 pb-0">
+        <div class="wizard-header-left">
+          <div class="wizard-logo">
+            <svg width="22" height="22" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="13" stroke="#00D4FF" stroke-width="2"/><path d="M8 14 L14 8 L20 14 L14 20 Z" fill="#00D4FF" opacity="0.8"/><circle cx="14" cy="14" r="3" fill="#00D4FF"/></svg>
+          </div>
+          <div>
+            <div class="wizard-title" id="addSourceModalLabel">Add Data Source</div>
+            <div class="wizard-subtitle">Connect a website or API to track prices</div>
+          </div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <!-- Step Progress -->
+      <div class="wizard-steps px-4 pt-3">
+        <div class="wstep active" data-step="1">
+          <span class="wstep-num">1</span>
+          <span class="wstep-label">Basics</span>
+        </div>
+        <div class="wstep-line"></div>
+        <div class="wstep" data-step="2">
+          <span class="wstep-num">2</span>
+          <span class="wstep-label">Type</span>
+        </div>
+        <div class="wstep-line"></div>
+        <div class="wstep" data-step="3">
+          <span class="wstep-num">3</span>
+          <span class="wstep-label">Config</span>
+        </div>
+        <div class="wstep-line"></div>
+        <div class="wstep" data-step="4">
+          <span class="wstep-num">4</span>
+          <span class="wstep-label">Schedule</span>
+        </div>
+        <div class="wstep-line"></div>
+        <div class="wstep" data-step="5">
+          <span class="wstep-num">5</span>
+          <span class="wstep-label">Test &amp; Save</span>
+        </div>
+      </div>
+
+      <form action="/sources" method="POST" id="addSourceForm">
+        <div class="modal-body wizard-body">
+
+          <!-- ─── STEP 1: Basics ─────────────────────────── -->
+          <div class="wizard-step" id="wstep-1">
+            <div class="wizard-step-title">Source Information</div>
+            <div class="row g-3">
+              <div class="col-md-7">
+                <label class="form-label-custom">Source Name *</label>
+                <input type="text" name="name" class="form-control form-control-custom" placeholder="e.g. Amazon Electronics UK" required />
+              </div>
+              <div class="col-md-5">
+                <label class="form-label-custom">Role *</label>
+                <div class="role-picker">
+                  <label class="role-opt">
+                    <input type="radio" name="role" value="market" checked />
+                    <div class="role-card">
+                      <i class="bi bi-shop-window"></i>
+                      <strong>Market</strong>
+                      <small>Sell-side prices</small>
+                    </div>
+                  </label>
+                  <label class="role-opt">
+                    <input type="radio" name="role" value="supplier" />
+                    <div class="role-card">
+                      <i class="bi bi-building"></i>
+                      <strong>Supplier</strong>
+                      <small>Buy-side prices</small>
+                    </div>
+                  </label>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label-custom">Accent Color</label>
+                <div class="color-picker-row">
+                  <input type="color" name="color" class="color-input" value="#00D4FF" id="colorPicker" />
+                  <div class="color-swatches">
+                    <span class="cswatch" style="background:#FF9900" data-color="#FF9900"></span>
+                    <span class="cswatch" style="background:#E53238" data-color="#E53238"></span>
+                    <span class="cswatch" style="background:#0071CE" data-color="#0071CE"></span>
+                    <span class="cswatch" style="background:#1877F2" data-color="#1877F2"></span>
+                    <span class="cswatch" style="background:#00D4FF" data-color="#00D4FF"></span>
+                    <span class="cswatch" style="background:#00E676" data-color="#00E676"></span>
+                    <span class="cswatch" style="background:#7B2FBE" data-color="#7B2FBE"></span>
+                    <span class="cswatch" style="background:#FF6A00" data-color="#FF6A00"></span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label-custom">Icon</label>
+                <div class="icon-picker" id="iconPicker">
+                  <input type="hidden" name="icon" value="bi-shop" id="iconVal" />
+                  <div class="icon-grid">
+                    <span class="ipick active" data-icon="bi-shop"><i class="bi bi-shop"></i></span>
+                    <span class="ipick" data-icon="bi-bag-fill"><i class="bi bi-bag-fill"></i></span>
+                    <span class="ipick" data-icon="bi-cart4"><i class="bi bi-cart4"></i></span>
+                    <span class="ipick" data-icon="bi-facebook"><i class="bi bi-facebook"></i></span>
+                    <span class="ipick" data-icon="bi-scissors"><i class="bi bi-scissors"></i></span>
+                    <span class="ipick" data-icon="bi-building"><i class="bi bi-building"></i></span>
+                    <span class="ipick" data-icon="bi-globe-asia-australia"><i class="bi bi-globe-asia-australia"></i></span>
+                    <span class="ipick" data-icon="bi-box-seam"><i class="bi bi-box-seam"></i></span>
+                    <span class="ipick" data-icon="bi-shop-window"><i class="bi bi-shop-window"></i></span>
+                    <span class="ipick" data-icon="bi-globe2"><i class="bi bi-globe2"></i></span>
+                    <span class="ipick" data-icon="bi-graph-up"><i class="bi bi-graph-up"></i></span>
+                    <span class="ipick" data-icon="bi-tags"><i class="bi bi-tags"></i></span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label-custom">Notes (optional)</label>
+                <textarea name="notes" class="form-control form-control-custom" rows="2" placeholder="Any notes about this source…"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- ─── STEP 2: Connection Type ────────────────── -->
+          <div class="wizard-step d-none" id="wstep-2">
+            <div class="wizard-step-title">Connection Type</div>
+            <p class="wizard-step-desc">How should Margyn connect to this data source?</p>
+            <input type="hidden" name="type" id="typeVal" value="scraper" />
+            <div class="type-selector">
+              <label class="type-card-opt active" data-type="scraper" tabindex="0">
+                <div class="type-card-icon"><i class="bi bi-cursor-fill"></i></div>
+                <div class="type-card-content">
+                  <div class="type-card-name">Website Scraper</div>
+                  <div class="type-card-desc">Extracts data directly from any public website using CSS selectors. Supports pagination and rate limiting.</div>
+                  <div class="type-card-tags">
+                    <span>HTML</span><span>CSS Selectors</span><span>Pagination</span>
+                  </div>
+                </div>
+                <div class="type-card-check"><i class="bi bi-check-circle-fill"></i></div>
+              </label>
+              <label class="type-card-opt" data-type="rest" tabindex="0">
+                <div class="type-card-icon type-rest-icon"><i class="bi bi-cloud-arrow-up-fill"></i></div>
+                <div class="type-card-content">
+                  <div class="type-card-name">REST API</div>
+                  <div class="type-card-desc">Connects via HTTP/REST endpoints. Supports OAuth 2.0, API Key, Bearer Token, and Basic Auth.</div>
+                  <div class="type-card-tags">
+                    <span>JSON</span><span>OAuth 2.0</span><span>API Key</span>
+                  </div>
+                </div>
+                <div class="type-card-check"><i class="bi bi-check-circle-fill"></i></div>
+              </label>
+              <label class="type-card-opt" data-type="graphql" tabindex="0">
+                <div class="type-card-icon type-graphql-icon"><i class="bi bi-braces-asterisk"></i></div>
+                <div class="type-card-content">
+                  <div class="type-card-name">GraphQL API</div>
+                  <div class="type-card-desc">Execute GraphQL queries against an endpoint. Supports query variables and authentication headers.</div>
+                  <div class="type-card-tags">
+                    <span>GraphQL</span><span>Queries</span><span>Bearer</span>
+                  </div>
+                </div>
+                <div class="type-card-check"><i class="bi bi-check-circle-fill"></i></div>
+              </label>
+              <label class="type-card-opt" data-type="soap" tabindex="0">
+                <div class="type-card-icon type-soap-icon"><i class="bi bi-filetype-xml"></i></div>
+                <div class="type-card-content">
+                  <div class="type-card-name">SOAP / WSDL</div>
+                  <div class="type-card-desc">Calls SOAP web services using XML envelopes. Provide WSDL URL, operation name and request template.</div>
+                  <div class="type-card-tags">
+                    <span>XML</span><span>WSDL</span><span>SOAP Envelope</span>
+                  </div>
+                </div>
+                <div class="type-card-check"><i class="bi bi-check-circle-fill"></i></div>
+              </label>
+            </div>
+          </div>
+
+          <!-- ─── STEP 3: Config (dynamic per type) ─────── -->
+          <div class="wizard-step d-none" id="wstep-3">
+
+            <!-- 3a: Scraper -->
+            <div class="type-config" id="cfg-scraper">
+              <div class="wizard-step-title"><i class="bi bi-cursor-fill me-2"></i>Website Scraper Configuration</div>
+              <div class="row g-3">
+                <div class="col-12">
+                  <label class="form-label-custom">Target URL *</label>
+                  <input type="url" name="url" class="form-control form-control-custom" placeholder="https://www.example.com/best-sellers" />
+                </div>
+                <div class="col-12">
+                  <div class="config-section-label">CSS Selectors</div>
+                  <div class="row g-2">
+                    <div class="col-md-6">
+                      <label class="form-label-custom">Product List Container *</label>
+                      <input type="text" name="cssListSelector" class="form-control form-control-custom font-mono" placeholder=".product-grid .item" />
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label-custom">Product Name</label>
+                      <input type="text" name="cssNameSelector" class="form-control form-control-custom font-mono" placeholder=".product-title" />
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label-custom">Price</label>
+                      <input type="text" name="cssPriceSelector" class="form-control form-control-custom font-mono" placeholder=".price" />
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label-custom">Rank / Position</label>
+                      <input type="text" name="cssRankSelector" class="form-control form-control-custom font-mono" placeholder=".rank-badge" />
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label-custom">Image</label>
+                      <input type="text" name="cssImageSelector" class="form-control form-control-custom font-mono" placeholder="img.product-img" />
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label-custom">Delay between requests (ms)</label>
+                  <input type="number" name="delayMs" class="form-control form-control-custom" value="3000" min="500" />
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label-custom">Max Pages</label>
+                  <input type="number" name="maxPages" class="form-control form-control-custom" value="1" min="1" max="20" />
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label-custom">User Agent Override</label>
+                  <input type="text" name="userAgent" class="form-control form-control-custom" placeholder="Default: MargynBot" />
+                </div>
+                <div class="col-12">
+                  <label class="form-label-custom">Custom Headers (JSON)</label>
+                  <textarea name="customHeaders" class="form-control form-control-custom font-mono" rows="2" placeholder='{"Accept-Language": "en-US"}'></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- 3b: REST -->
+            <div class="type-config d-none" id="cfg-rest">
+              <div class="wizard-step-title"><i class="bi bi-cloud-arrow-up-fill me-2 text-rest"></i>REST API Configuration</div>
+              <div class="row g-3">
+                <div class="col-md-8">
+                  <label class="form-label-custom">Base URL *</label>
+                  <input type="url" name="baseUrl" class="form-control form-control-custom" placeholder="https://api.example.com/v1" />
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label-custom">HTTP Method</label>
+                  <select name="httpMethod" class="form-select form-control-custom">
+                    <option value="GET">GET</option>
+                    <option value="POST">POST</option>
+                  </select>
+                </div>
+                <div class="col-md-8">
+                  <label class="form-label-custom">Endpoint Path</label>
+                  <input type="text" name="endpoint" class="form-control form-control-custom font-mono" placeholder="/products/trending" />
+                </div>
+                <div class="col-12">
+                  <label class="form-label-custom">Query Parameters (JSON)</label>
+                  <textarea name="queryParams" class="form-control form-control-custom font-mono" rows="2" placeholder='{"limit": 100, "sort": "bestMatch"}'></textarea>
+                </div>
+
+                <!-- Auth section -->
+                <div class="col-12">
+                  <div class="config-section-label">Authentication</div>
+                  <div class="auth-type-tabs" id="restAuthTabs">
+                    <button type="button" class="auth-tab active" data-auth="none">None</button>
+                    <button type="button" class="auth-tab" data-auth="apikey">API Key</button>
+                    <button type="button" class="auth-tab" data-auth="bearer">Bearer Token</button>
+                    <button type="button" class="auth-tab" data-auth="oauth2">OAuth 2.0</button>
+                    <button type="button" class="auth-tab" data-auth="basic">Basic Auth</button>
+                  </div>
+                  <input type="hidden" name="authType" id="restAuthType" value="none" />
+                  <div class="auth-fields" id="auth-none"></div>
+                  <div class="auth-fields d-none" id="auth-apikey">
+                    <div class="row g-2 mt-1">
+                      <div class="col-md-4"><input type="text" name="apiKeyHeader" class="form-control form-control-custom" placeholder="Header name (e.g. x-api-key)" /></div>
+                      <div class="col-md-8"><input type="text" name="apiKeyValue" class="form-control form-control-custom" placeholder="API Key value" /></div>
+                    </div>
+                  </div>
+                  <div class="auth-fields d-none" id="auth-bearer">
+                    <div class="mt-1">
+                      <input type="text" name="bearerToken" class="form-control form-control-custom" placeholder="Bearer token value" />
+                    </div>
+                  </div>
+                  <div class="auth-fields d-none" id="auth-oauth2">
+                    <div class="row g-2 mt-1">
+                      <div class="col-12"><input type="url" name="oauthTokenUrl" class="form-control form-control-custom" placeholder="Token URL (e.g. https://api.example.com/oauth/token)" /></div>
+                      <div class="col-md-6"><input type="text" name="oauthClientId" class="form-control form-control-custom" placeholder="Client ID" /></div>
+                      <div class="col-md-6"><input type="password" name="oauthClientSecret" class="form-control form-control-custom" placeholder="Client Secret" /></div>
+                      <div class="col-12"><input type="text" name="oauthScope" class="form-control form-control-custom" placeholder="Scope (optional, space-separated)" /></div>
+                    </div>
+                  </div>
+                  <div class="auth-fields d-none" id="auth-basic">
+                    <div class="row g-2 mt-1">
+                      <div class="col-md-6"><input type="text" name="basicUsername" class="form-control form-control-custom" placeholder="Username" /></div>
+                      <div class="col-md-6"><input type="password" name="basicPassword" class="form-control form-control-custom" placeholder="Password" /></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Response Mapping -->
+                <div class="col-12">
+                  <div class="config-section-label">Response Mapping <span class="section-hint-inline">Dot-path notation, e.g. <code>data.items</code></span></div>
+                  <div class="row g-2">
+                    <div class="col-md-6"><input type="text" name="responseListPath" class="form-control form-control-custom font-mono" placeholder="Product list path (e.g. data.products)" /></div>
+                    <div class="col-md-6"><input type="text" name="responseNamePath" class="form-control form-control-custom font-mono" placeholder="Name field (e.g. title)" /></div>
+                    <div class="col-md-4"><input type="text" name="responsePricePath" class="form-control form-control-custom font-mono" placeholder="Price field (e.g. price.value)" /></div>
+                    <div class="col-md-4"><input type="text" name="responseMoqPath" class="form-control form-control-custom font-mono" placeholder="MOQ field (supplier only)" /></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 3c: GraphQL -->
+            <div class="type-config d-none" id="cfg-graphql">
+              <div class="wizard-step-title"><i class="bi bi-braces-asterisk me-2 text-graphql"></i>GraphQL Configuration</div>
+              <div class="row g-3">
+                <div class="col-12">
+                  <label class="form-label-custom">GraphQL Endpoint *</label>
+                  <input type="url" name="baseUrl" class="form-control form-control-custom" placeholder="https://api.example.com/graphql" />
+                </div>
+                <div class="col-12">
+                  <label class="form-label-custom">Authentication</label>
+                  <div class="auth-type-tabs">
+                    <button type="button" class="auth-tab active" data-auth-gql="none">None</button>
+                    <button type="button" class="auth-tab" data-auth-gql="bearer">Bearer Token</button>
+                    <button type="button" class="auth-tab" data-auth-gql="apikey">API Key</button>
+                  </div>
+                  <div id="gql-auth-bearer" class="d-none mt-2">
+                    <input type="text" name="bearerToken" class="form-control form-control-custom" placeholder="Bearer token" />
+                  </div>
+                  <div id="gql-auth-apikey" class="d-none mt-2">
+                    <div class="row g-2">
+                      <div class="col-4"><input type="text" name="apiKeyHeader" class="form-control form-control-custom" placeholder="Header name" /></div>
+                      <div class="col-8"><input type="text" name="apiKeyValue" class="form-control form-control-custom" placeholder="API Key" /></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-8">
+                  <label class="form-label-custom">GraphQL Query *</label>
+                  <textarea name="graphqlQuery" class="form-control form-control-custom font-mono" rows="7"
+                    placeholder="query SearchProducts($query: String!, $first: Int!) {&#10;  searchProducts(query: $query, first: $first) {&#10;    edges { node { id name price moq } }&#10;  }&#10;}"></textarea>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label-custom">Variables (JSON)</label>
+                  <textarea name="graphqlVariables" class="form-control form-control-custom font-mono" rows="4" placeholder='{"query": "{searchQuery}", "first": 50}'></textarea>
+                  <label class="form-label-custom mt-2">Response List Path</label>
+                  <input type="text" name="responseListPath" class="form-control form-control-custom font-mono" placeholder="data.searchProducts.edges" />
+                  <label class="form-label-custom mt-2">Name / Price paths</label>
+                  <div class="row g-1">
+                    <div class="col-6"><input type="text" name="responseNamePath" class="form-control form-control-custom font-mono" placeholder="node.name" /></div>
+                    <div class="col-6"><input type="text" name="responsePricePath" class="form-control form-control-custom font-mono" placeholder="node.price.amount" /></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 3d: SOAP -->
+            <div class="type-config d-none" id="cfg-soap">
+              <div class="wizard-step-title"><i class="bi bi-filetype-xml me-2 text-soap"></i>SOAP / WSDL Configuration</div>
+              <div class="row g-3">
+                <div class="col-md-8">
+                  <label class="form-label-custom">WSDL URL *</label>
+                  <input type="url" name="wsdlUrl" class="form-control form-control-custom" placeholder="https://api.example.com/service.wsdl" />
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label-custom">Operation Name *</label>
+                  <input type="text" name="soapOperation" class="form-control form-control-custom font-mono" placeholder="ProductSearch" />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label-custom">Namespace</label>
+                  <input type="text" name="soapNamespace" class="form-control form-control-custom font-mono" placeholder="http://www.example.com/api/" />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label-custom">SOAPAction Header</label>
+                  <input type="text" name="soapAction" class="form-control form-control-custom font-mono" placeholder="ProductSearch" />
+                </div>
+                <div class="col-12">
+                  <label class="form-label-custom">Authentication</label>
+                  <div class="row g-2">
+                    <div class="col-md-4"><input type="text" name="basicUsername" class="form-control form-control-custom" placeholder="Username (Basic Auth)" /></div>
+                    <div class="col-md-4"><input type="password" name="basicPassword" class="form-control form-control-custom" placeholder="Password" /></div>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <label class="form-label-custom">SOAP Envelope Template</label>
+                  <textarea name="soapTemplate" class="form-control form-control-custom font-mono" rows="6"
+                    placeholder="&lt;soapenv:Envelope xmlns:soapenv=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot;&gt;&#10;  &lt;soapenv:Body&gt;&#10;    &lt;ns:ProductSearch&gt;&#10;      &lt;ns:keyword&gt;{{query}}&lt;/ns:keyword&gt;&#10;    &lt;/ns:ProductSearch&gt;&#10;  &lt;/soapenv:Body&gt;&#10;&lt;/soapenv:Envelope&gt;"></textarea>
+                </div>
+                <div class="col-12">
+                  <div class="config-section-label">Response Mapping</div>
+                  <div class="row g-2">
+                    <div class="col-md-4"><input type="text" name="responseListPath" class="form-control form-control-custom font-mono" placeholder="ProductSearchResponse.products.item" /></div>
+                    <div class="col-md-4"><input type="text" name="responseNamePath" class="form-control form-control-custom font-mono" placeholder="productName" /></div>
+                    <div class="col-md-4"><input type="text" name="responsePricePath" class="form-control form-control-custom font-mono" placeholder="unitPrice" /></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- ─── STEP 4: Schedule ───────────────────────── -->
+          <div class="wizard-step d-none" id="wstep-4">
+            <div class="wizard-step-title">Sync Schedule</div>
+            <p class="wizard-step-desc">How often should Margyn fetch data from this source?</p>
+            <input type="hidden" name="schedule" id="scheduleVal" value="0 6 * * *" />
+            <div class="schedule-presets">
+              <button type="button" class="sched-preset active" data-cron="0 6 * * *">
+                <i class="bi bi-sunrise"></i>
+                <strong>Daily at 6am</strong>
+                <small>0 6 * * *</small>
+              </button>
+              <button type="button" class="sched-preset" data-cron="0 */6 * * *">
+                <i class="bi bi-arrow-repeat"></i>
+                <strong>Every 6 hours</strong>
+                <small>0 */6 * * *</small>
+              </button>
+              <button type="button" class="sched-preset" data-cron="0 */4 * * *">
+                <i class="bi bi-clock-history"></i>
+                <strong>Every 4 hours</strong>
+                <small>0 */4 * * *</small>
+              </button>
+              <button type="button" class="sched-preset" data-cron="0 8,20 * * *">
+                <i class="bi bi-calendar2-check"></i>
+                <strong>Twice daily</strong>
+                <small>0 8,20 * * *</small>
+              </button>
+              <button type="button" class="sched-preset" data-cron="0 0 * * 1">
+                <i class="bi bi-calendar-week"></i>
+                <strong>Weekly (Mon)</strong>
+                <small>0 0 * * 1</small>
+              </button>
+              <button type="button" class="sched-preset" data-cron="custom">
+                <i class="bi bi-terminal"></i>
+                <strong>Custom cron</strong>
+                <small>Advanced</small>
+              </button>
+            </div>
+            <div id="customCronWrap" class="d-none mt-3">
+              <label class="form-label-custom">Custom Cron Expression</label>
+              <input type="text" id="customCronInput" class="form-control form-control-custom font-mono" placeholder="*/30 * * * *" />
+              <div class="cron-helper mt-2">
+                <code class="cron-part">MIN</code>
+                <code class="cron-part">HOUR</code>
+                <code class="cron-part">DAY</code>
+                <code class="cron-part">MONTH</code>
+                <code class="cron-part">WEEKDAY</code>
+              </div>
+            </div>
+            <div class="schedule-note mt-3">
+              <i class="bi bi-info-circle me-2"></i>
+              All schedules run in server UTC time. The next run will be triggered at the next matching time.
+            </div>
+          </div>
+
+          <!-- ─── STEP 5: Test & Save ────────────────────── -->
+          <div class="wizard-step d-none" id="wstep-5">
+            <div class="wizard-step-title">Test &amp; Save</div>
+            <div class="review-summary" id="reviewSummary">
+              <!-- Populated by JS -->
+            </div>
+            <div class="test-connection-area mt-4">
+              <button type="button" class="btn btn-outline-secondary" id="testConnBtn">
+                <i class="bi bi-plug me-2"></i>Test Connection
+              </button>
+              <div class="test-result mt-3 d-none" id="testResult"></div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Wizard Footer -->
+        <div class="modal-footer wizard-footer border-0 pt-0">
+          <button type="button" class="btn btn-outline-secondary" id="wizPrev" style="display:none">
+            <i class="bi bi-arrow-left me-1"></i>Back
+          </button>
+          <button type="button" class="btn btn-cyan ms-auto" id="wizNext">
+            Continue <i class="bi bi-arrow-right ms-1"></i>
+          </button>
+          <button type="submit" class="btn btn-cyan ms-auto d-none" id="wizSave">
+            <i class="bi bi-check-lg me-1"></i>Save Source
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Source Config Detail Modal -->
+<div class="modal fade" id="configModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content wizard-modal">
+      <div class="modal-header border-0">
+        <h5 class="modal-title fw-semibold">Source Configuration</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <pre class="config-json-view" id="configJsonView">Loading…</pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirm Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered" style="max-width:400px">
+    <div class="modal-content wizard-modal text-center p-4">
+      <div class="delete-icon mb-3"><i class="bi bi-trash3-fill"></i></div>
+      <h5 class="fw-bold">Remove Source?</h5>
+      <p class="text-muted small" id="deleteMsg">This will permanently remove this source and all its configuration.</p>
+      <div class="d-flex gap-2 justify-content-center mt-3">
+        <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+        <form id="deleteForm" method="POST">
+          <input type="hidden" name="_method" value="DELETE" />
+          <button type="submit" class="btn btn-danger">Yes, Remove</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+

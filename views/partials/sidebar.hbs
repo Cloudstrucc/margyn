@@ -1,0 +1,103 @@
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <a href="/dashboard" class="sidebar-brand">
+      <div class="brand-icon">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <circle cx="14" cy="14" r="13" stroke="#00D4FF" stroke-width="2"/>
+          <path d="M8 14 L14 8 L20 14 L14 20 Z" fill="#00D4FF" opacity="0.8"/>
+          <circle cx="14" cy="14" r="3" fill="#00D4FF"/>
+        </svg>
+      </div>
+      <span class="brand-name">Margyn</span>
+    </a>
+    <button class="sidebar-toggle d-lg-none" id="sidebarClose">
+      <i class="bi bi-x-lg"></i>
+    </button>
+  </div>
+
+  <div class="sidebar-section-label">Intelligence</div>
+  <ul class="sidebar-nav">
+    <li class="sidebar-item">
+      <a href="/dashboard" class="sidebar-link {{activeNav 'dashboard' page}}">
+        <i class="bi bi-grid-1x2-fill"></i>
+        <span>Dashboard</span>
+        {{#if (eq page 'dashboard')}}<div class="nav-indicator"></div>{{/if}}
+      </a>
+    </li>
+    <li class="sidebar-item">
+      <a href="/products" class="sidebar-link {{activeNav 'products' page}}">
+        <i class="bi bi-boxes"></i>
+        <span>Products</span>
+        <span class="nav-badge">12</span>
+      </a>
+    </li>
+    <li class="sidebar-item">
+      <a href="/b2b" class="sidebar-link {{activeNav 'b2b' page}}">
+        <i class="bi bi-building-fill"></i>
+        <span>B2B Commercial</span>
+        <span class="nav-badge nav-badge-gold">12</span>
+      </a>
+    </li>
+    <li class="sidebar-item">
+      <a href="/sources" class="sidebar-link {{activeNav 'sources' page}}">
+        <i class="bi bi-diagram-3-fill"></i>
+        <span>Data Sources</span>
+        <span class="nav-badge nav-badge-green">10</span>
+      </a>
+    </li>
+  </ul>
+
+  <div class="sidebar-section-label">Analytics</div>
+  <ul class="sidebar-nav">
+    <li class="sidebar-item">
+      <a href="/dashboard" class="sidebar-link">
+        <i class="bi bi-graph-up-arrow"></i>
+        <span>Trends</span>
+        <span class="nav-badge-soon">Soon</span>
+      </a>
+    </li>
+    <li class="sidebar-item">
+      <a href="/dashboard" class="sidebar-link">
+        <i class="bi bi-lightning-charge-fill"></i>
+        <span>Opportunities</span>
+        <span class="nav-badge">7</span>
+      </a>
+    </li>
+    <li class="sidebar-item">
+      <a href="/dashboard" class="sidebar-link">
+        <i class="bi bi-bell-fill"></i>
+        <span>Alerts</span>
+        <span class="nav-badge nav-badge-red">3</span>
+      </a>
+    </li>
+  </ul>
+
+  <div class="sidebar-section-label">Settings</div>
+  <ul class="sidebar-nav">
+    <li class="sidebar-item">
+      <a href="/dashboard" class="sidebar-link">
+        <i class="bi bi-sliders"></i>
+        <span>Preferences</span>
+      </a>
+    </li>
+  </ul>
+
+  <div class="sidebar-footer">
+    <div class="sync-status">
+      <div class="sync-dot"></div>
+      <span>Live sync active</span>
+    </div>
+    <div class="sidebar-user">
+      <img src="{{user.avatar}}" alt="{{user.name}}" class="sidebar-avatar" />
+      <div class="sidebar-user-info">
+        <div class="sidebar-user-name">{{user.name}}</div>
+        <div class="sidebar-user-role">{{user.role}}</div>
+      </div>
+      <a href="/auth/logout" class="sidebar-logout" title="Logout">
+        <i class="bi bi-box-arrow-right"></i>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>

@@ -1,0 +1,127 @@
+<div class="page-content">
+  <div class="page-header">
+    <div class="d-flex align-items-center gap-3">
+      <a href="/products" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i></a>
+      <div>
+        <h1 class="page-title">{{product.name}}</h1>
+        <p class="page-subtitle">SKU: {{product.sku}} &nbsp;·&nbsp; {{product.category}}</p>
+      </div>
+    </div>
+    <div class="page-header-actions">
+      <span class="margin-badge {{marginBadge product.margin}} fs-6 px-3 py-2">{{percentage product.margin}} margin</span>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- Left: Product Overview -->
+    <div class="col-lg-4">
+      <div class="data-card text-center p-4">
+        <img src="{{product.image}}" alt="{{product.name}}" class="product-detail-img mb-4" />
+        <h5 class="fw-bold">{{product.name}}</h5>
+        <div class="text-muted small mb-3">{{product.sku}}</div>
+        <div class="detail-stats">
+          <div class="detail-stat">
+            <div class="detail-stat-val">{{formatNum product.monthlySales}}</div>
+            <div class="detail-stat-lab">Monthly Sales</div>
+          </div>
+          <div class="detail-stat">
+            <div class="detail-stat-val text-cyan">{{formatCurrency product.avgSellPrice}}</div>
+            <div class="detail-stat-lab">Avg Sell Price</div>
+          </div>
+          <div class="detail-stat">
+            <div class="detail-stat-val text-success">{{formatCurrency product.marginAmount}}</div>
+            <div class="detail-stat-lab">Profit / Unit</div>
+          </div>
+        </div>
+        <div class="rating-row mt-3">
+          <span class="text-warning">{{stars product.rating}}</span>
+          <span class="ms-2 small text-muted">{{product.rating}} ({{formatNum product.reviewCount}} reviews)</span>
+        </div>
+        <div class="mt-3">
+          {{#each product.tags}}
+          <span class="ptag ptag-{{this}} me-1">{{this}}</span>
+          {{/each}}
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Market + Supplier prices -->
+    <div class="col-lg-8">
+      <div class="data-card mb-4">
+        <div class="data-card-header">
+          <div class="data-card-title"><i class="bi bi-shop me-2 text-cyan"></i>Market Prices</div>
+        </div>
+        <div class="price-comparison-list">
+          {{#each marketSources}}
+          <div class="price-row">
+            <div class="price-source">
+              <i class="bi {{icon}}" style="color:{{color}}"></i>
+              <span>{{name}}</span>
+            </div>
+            <div class="price-value mono fw-bold">
+              {{formatCurrency (lookup ../product.marketSources.amazon.price id)}}
+            </div>
+            <div class="price-bar-wrap">
+              <div class="price-bar-fill price-bar-market" style="width:70%"></div>
+            </div>
+          </div>
+          {{/each}}
+          <div class="price-row price-avg-row">
+            <div class="price-source fw-semibold">
+              <i class="bi bi-calculator text-cyan"></i>
+              <span>Average Sell Price</span>
+            </div>
+            <div class="price-value mono fw-bold text-cyan">{{formatCurrency product.avgSellPrice}}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="data-card">
+        <div class="data-card-header">
+          <div class="data-card-title"><i class="bi bi-building me-2 text-purple"></i>Supplier Prices</div>
+        </div>
+        <div class="price-comparison-list">
+          {{#each supplierSources}}
+          <div class="price-row">
+            <div class="price-source">
+              <i class="bi {{icon}}" style="color:{{color}}"></i>
+              <span>{{name}}</span>
+            </div>
+            <div class="price-value mono fw-bold text-success">
+              —
+            </div>
+            <div class="price-bar-wrap">
+              <div class="price-bar-fill price-bar-supplier" style="width:20%"></div>
+            </div>
+          </div>
+          {{/each}}
+          <div class="price-row price-avg-row">
+            <div class="price-source fw-semibold">
+              <i class="bi bi-check-circle-fill text-success"></i>
+              <span>Best Supplier Price</span>
+            </div>
+            <div class="price-value mono fw-bold text-success">{{formatCurrency product.bestSupplierPrice}}</div>
+            <div class="small text-muted">via Alibaba (MOQ: 100)</div>
+          </div>
+        </div>
+
+        <!-- Margin Summary -->
+        <div class="margin-summary mt-4">
+          <div class="margin-row">
+            <span>Average Sell Price</span>
+            <span class="mono">{{formatCurrency product.avgSellPrice}}</span>
+          </div>
+          <div class="margin-row">
+            <span>Best Supplier Price</span>
+            <span class="mono text-danger">− {{formatCurrency product.bestSupplierPrice}}</span>
+          </div>
+          <div class="margin-divider"></div>
+          <div class="margin-row margin-total">
+            <span>Est. Gross Margin</span>
+            <span class="mono fw-bold text-success">{{formatCurrency product.marginAmount}} ({{percentage product.margin}})</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

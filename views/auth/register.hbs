@@ -1,0 +1,82 @@
+<div class="auth-page">
+  <div class="auth-left d-none d-lg-flex">
+    <div class="auth-left-content">
+      <div class="auth-brand mb-5">
+        <svg width="36" height="36" viewBox="0 0 28 28" fill="none">
+          <circle cx="14" cy="14" r="13" stroke="#00D4FF" stroke-width="2"/>
+          <path d="M8 14 L14 8 L20 14 L14 20 Z" fill="#00D4FF" opacity="0.8"/>
+          <circle cx="14" cy="14" r="3" fill="#00D4FF"/>
+        </svg>
+        <span class="ms-2 fs-4 fw-bold">Margyn</span>
+      </div>
+      <h2 class="auth-headline">Start finding margins<br/>in minutes.</h2>
+      <p class="auth-tagline">No credit card. No setup fees. Just intelligence.</p>
+
+      <div class="auth-feature-list mt-5">
+        <div class="auth-feature"><i class="bi bi-check-circle-fill text-cyan me-2"></i>Track 100+ products across 5 platforms</div>
+        <div class="auth-feature mt-2"><i class="bi bi-check-circle-fill text-cyan me-2"></i>Daily supplier price sync</div>
+        <div class="auth-feature mt-2"><i class="bi bi-check-circle-fill text-cyan me-2"></i>Margin & opportunity alerts</div>
+        <div class="auth-feature mt-2"><i class="bi bi-check-circle-fill text-cyan me-2"></i>Export to CSV / Google Sheets</div>
+      </div>
+    </div>
+    <div class="auth-bg-glow"></div>
+  </div>
+
+  <div class="auth-right">
+    <div class="auth-form-wrap">
+      <a href="/" class="auth-back"><i class="bi bi-arrow-left me-1"></i>Back to home</a>
+      <div class="auth-logo-mobile d-flex d-lg-none mb-4">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <circle cx="14" cy="14" r="13" stroke="#00D4FF" stroke-width="2"/>
+          <path d="M8 14 L14 8 L20 14 L14 20 Z" fill="#00D4FF" opacity="0.8"/>
+          <circle cx="14" cy="14" r="3" fill="#00D4FF"/>
+        </svg>
+        <span class="ms-2 fw-bold fs-5">Margyn</span>
+      </div>
+      <h3 class="auth-form-title">Create your account</h3>
+      <p class="auth-form-sub">Free to start, powerful from day one</p>
+
+      {{#each errors}}
+        <div class="alert alert-danger alert-sm"><i class="bi bi-exclamation-circle me-2"></i>{{msg}}</div>
+      {{/each}}
+
+      <form action="/auth/register" method="POST" class="auth-form mt-4">
+        <div class="form-group mb-3">
+          <label class="form-label-custom">Full name</label>
+          <div class="input-icon-wrap">
+            <i class="bi bi-person input-icon"></i>
+            <input type="text" name="name" class="form-control form-control-custom" placeholder="Alex Rivera" value="{{name}}" required />
+          </div>
+        </div>
+        <div class="form-group mb-3">
+          <label class="form-label-custom">Email address</label>
+          <div class="input-icon-wrap">
+            <i class="bi bi-envelope input-icon"></i>
+            <input type="email" name="email" class="form-control form-control-custom" placeholder="you@example.com" value="{{email}}" required />
+          </div>
+        </div>
+        <div class="form-group mb-3">
+          <label class="form-label-custom">Password</label>
+          <div class="input-icon-wrap">
+            <i class="bi bi-lock input-icon"></i>
+            <input type="password" name="password" class="form-control form-control-custom" placeholder="Min. 6 characters" required />
+          </div>
+        </div>
+        <div class="form-group mb-4">
+          <label class="form-label-custom">Confirm password</label>
+          <div class="input-icon-wrap">
+            <i class="bi bi-lock-fill input-icon"></i>
+            <input type="password" name="password2" class="form-control form-control-custom" placeholder="Repeat password" required />
+          </div>
+        </div>
+        <button type="submit" class="btn btn-cyan w-100 btn-lg">
+          Create account <i class="bi bi-arrow-right ms-2"></i>
+        </button>
+      </form>
+
+      <div class="auth-switch mt-4">
+        Already have an account? <a href="/auth/login">Sign in</a>
+      </div>
+    </div>
+  </div>
+</div>

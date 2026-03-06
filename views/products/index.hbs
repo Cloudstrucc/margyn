@@ -1,0 +1,153 @@
+<div class="page-content">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Products</h1>
+      <p class="page-subtitle">{{totalCount}} products tracked — comparing market vs supplier prices</p>
+    </div>
+    <div class="page-header-actions">
+      <button class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-download me-1"></i>Export CSV
+      </button>
+      <button class="btn btn-cyan btn-sm">
+        <i class="bi bi-plus me-1"></i>Add Product
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filter-bar mb-4">
+    <form method="GET" action="/products" class="d-flex flex-wrap gap-2 align-items-center">
+      <div class="filter-search">
+        <i class="bi bi-search filter-search-icon"></i>
+        <input type="text" name="search" class="form-control form-control-sm filter-search-input" placeholder="Search products, SKUs…" value="{{searchQuery}}" />
+      </div>
+      <select name="category" class="form-select form-select-sm filter-select">
+        <option value="">All Categories</option>
+        {{#each categories}}
+        <option value="{{this}}" {{#if (eq this ../currentCategory)}}selected{{/if}}>{{this}}</option>
+        {{/each}}
+      </select>
+      <select name="sort" class="form-select form-select-sm filter-select">
+        <option value="sales" {{#if (eq currentSort 'sales')}}selected{{/if}}>Sort: Sales Volume</option>
+        <option value="margin" {{#if (eq currentSort 'margin')}}selected{{/if}}>Sort: Margin</option>
+        <option value="price" {{#if (eq currentSort 'price')}}selected{{/if}}>Sort: Sell Price</option>
+        <option value="name" {{#if (eq currentSort 'name')}}selected{{/if}}>Sort: Name</option>
+      </select>
+      <button type="submit" class="btn btn-outline-secondary btn-sm">Apply</button>
+      {{#if searchQuery}}<a href="/products" class="btn btn-outline-danger btn-sm"><i class="bi bi-x"></i></a>{{/if}}
+    </form>
+
+    <div class="filter-tags ms-auto">
+      <button class="tag-filter active" data-tag="all">All</button>
+      <button class="tag-filter" data-tag="trending"><i class="bi bi-fire"></i> Trending</button>
+      <button class="tag-filter" data-tag="best-margin"><i class="bi bi-stars"></i> Best Margin</button>
+      <button class="tag-filter" data-tag="high-volume"><i class="bi bi-graph-up"></i> High Volume</button>
+    </div>
+  </div>
+
+  <!-- Product Table -->
+  <div class="data-card p-0">
+    <div class="table-responsive">
+      <table class="data-table products-table">
+        <thead>
+          <tr>
+            <th style="width:40px">#</th>
+            <th>Product</th>
+            <th>Category</th>
+            <th class="text-center">Monthly Sales</th>
+            <th class="text-end">Amazon</th>
+            <th class="text-end">eBay</th>
+            <th class="text-end">Avg Sell</th>
+            <th class="text-end text-cyan">Best Buy</th>
+            <th class="text-end">Profit / Unit</th>
+            <th class="text-center">Margin</th>
+            <th class="text-center">Trend</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each products}}
+          <tr class="product-row" data-tags="{{#each tags}}{{this}} {{/each}}">
+            <td class="rank-num">{{rankNum @index}}</td>
+            <td>
+              <div class="product-cell">
+                <img src="{{image}}" alt="{{name}}" class="product-thumb-md" />
+                <div>
+                  <div class="product-name-main">{{name}}</div>
+                  <div class="product-sku">{{sku}}</div>
+                  <div class="product-tags mt-1">
+                    {{#each tags}}
+                    <span class="ptag ptag-{{this}}">{{this}}</span>
+                    {{/each}}
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td><span class="cat-badge">{{category}}</span></td>
+            <td class="text-center">
+              <div class="mono fw-semibold">{{formatNum monthlySales}}</div>
+              <div class="small text-muted">units/mo</div>
+            </td>
+            <td class="text-end mono">
+              {{#if marketSources.amazon}}
+                {{formatCurrency marketSources.amazon.price}}
+                {{#if marketSources.amazon.rank}}<div class="rank-indicator">#{{marketSources.amazon.rank}}</div>{{/if}}
+              {{else}}
+                <span class="text-muted">—</span>
+              {{/if}}
+            </td>
+            <td class="text-end mono">
+              {{#if marketSources.ebay}}
+                {{formatCurrency marketSources.ebay.price}}
+              {{else}}
+                <span class="text-muted">—</span>
+              {{/if}}
+            </td>
+            <td class="text-end">
+              <div class="mono fw-semibold">{{formatCurrency avgSellPrice}}</div>
+            </td>
+            <td class="text-end">
+              <div class="mono fw-bold text-cyan">{{formatCurrency bestSupplierPrice}}</div>
+              <div class="small text-muted">Alibaba</div>
+            </td>
+            <td class="text-end">
+              <div class="mono fw-bold text-success">{{formatCurrency marginAmount}}</div>
+            </td>
+            <td class="text-center">
+              <div class="margin-pill {{marginBadge margin}}">{{percentage margin}}</div>
+            </td>
+            <td class="text-center">
+              <span class="trend-indicator {{trendClass trend}}">
+                {{trendIcon trend}} {{trend}}
+              </span>
+            </td>
+            <td>
+              <a href="/products/{{id}}" class="btn btn-outline-secondary btn-xs">
+                <i class="bi bi-eye"></i>
+              </a>
+            </td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Legend -->
+  <div class="table-legend mt-3">
+    <div class="legend-item">
+      <span class="margin-pill bg-success">90%+</span> Excellent
+    </div>
+    <div class="legend-item">
+      <span class="margin-pill bg-success">80-90%</span> Strong
+    </div>
+    <div class="legend-item">
+      <span class="margin-pill bg-warning text-dark">70-80%</span> Good
+    </div>
+    <div class="legend-item">
+      <span class="margin-pill bg-danger">&lt;70%</span> Review
+    </div>
+    <div class="legend-sep"></div>
+    <div class="text-muted small">Margins shown exclude shipping, fees & taxes. Always verify MOQ with suppliers.</div>
+  </div>
+</div>

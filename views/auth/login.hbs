@@ -1,0 +1,83 @@
+<div class="auth-page">
+  <div class="auth-left d-none d-lg-flex">
+    <div class="auth-left-content">
+      <div class="auth-brand mb-5">
+        <svg width="36" height="36" viewBox="0 0 28 28" fill="none">
+          <circle cx="14" cy="14" r="13" stroke="#00D4FF" stroke-width="2"/>
+          <path d="M8 14 L14 8 L20 14 L14 20 Z" fill="#00D4FF" opacity="0.8"/>
+          <circle cx="14" cy="14" r="3" fill="#00D4FF"/>
+        </svg>
+        <span class="ms-2 fs-4 fw-bold">Margyn</span>
+      </div>
+      <h2 class="auth-headline">Spot the margin.<br/>Move first.</h2>
+      <p class="auth-tagline">Real-time product arbitrage intelligence for the modern reseller.</p>
+
+      <div class="auth-testimonial mt-5">
+        <div class="testimonial-text">"Margyn helped us identify a 91% margin product in our first week. We've never looked back."</div>
+        <div class="testimonial-author mt-3">
+          <img src="https://ui-avatars.com/api/?name=Sarah+Chen&background=00D4FF&color=0A1628&bold=true" class="rounded-circle" width="36" height="36" alt="Sarah" />
+          <div class="ms-2">
+            <div class="fw-semibold small">Sarah Chen</div>
+            <div class="text-muted small">Founder, NexSell</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="auth-bg-glow"></div>
+  </div>
+
+  <div class="auth-right">
+    <div class="auth-form-wrap">
+      <a href="/" class="auth-back"><i class="bi bi-arrow-left me-1"></i>Back to home</a>
+      <div class="auth-logo-mobile d-flex d-lg-none mb-4">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <circle cx="14" cy="14" r="13" stroke="#00D4FF" stroke-width="2"/>
+          <path d="M8 14 L14 8 L20 14 L14 20 Z" fill="#00D4FF" opacity="0.8"/>
+          <circle cx="14" cy="14" r="3" fill="#00D4FF"/>
+        </svg>
+        <span class="ms-2 fw-bold fs-5">Margyn</span>
+      </div>
+      <h3 class="auth-form-title">Welcome back</h3>
+      <p class="auth-form-sub">Sign in to your Margyn account</p>
+
+      {{#each error}}
+        <div class="alert alert-danger alert-sm"><i class="bi bi-exclamation-circle me-2"></i>{{this}}</div>
+      {{/each}}
+      {{#each error_msg}}
+        <div class="alert alert-danger alert-sm"><i class="bi bi-exclamation-circle me-2"></i>{{this}}</div>
+      {{/each}}
+      {{#each success_msg}}
+        <div class="alert alert-success alert-sm"><i class="bi bi-check-circle me-2"></i>{{this}}</div>
+      {{/each}}
+
+      <form action="/auth/login" method="POST" class="auth-form mt-4">
+        <div class="form-group mb-3">
+          <label class="form-label-custom">Email address</label>
+          <div class="input-icon-wrap">
+            <i class="bi bi-envelope input-icon"></i>
+            <input type="email" name="email" class="form-control form-control-custom" placeholder="you@example.com" required />
+          </div>
+        </div>
+        <div class="form-group mb-4">
+          <label class="form-label-custom">Password</label>
+          <div class="input-icon-wrap">
+            <i class="bi bi-lock input-icon"></i>
+            <input type="password" name="password" class="form-control form-control-custom" placeholder="••••••••" required />
+          </div>
+        </div>
+        <button type="submit" class="btn btn-cyan w-100 btn-lg">
+          Sign in <i class="bi bi-arrow-right ms-2"></i>
+        </button>
+      </form>
+
+      <div class="auth-demo-hint mt-4">
+        <i class="bi bi-info-circle me-1"></i>
+        Demo credentials: <code>admin@margyn.io</code> / <code>password123</code>
+      </div>
+
+      <div class="auth-switch mt-4">
+        Don't have an account? <a href="/auth/register">Create one free</a>
+      </div>
+    </div>
+  </div>
+</div>
